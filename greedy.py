@@ -1,13 +1,10 @@
-#  Python3 program for the above approacsh
 
 from typing import DefaultDict
-
 
 INT_MAX = 2147483647
 
 
-# Function to find the minimum
-# cost path for all the paths
+# Function to find the minimum cost path for all the paths
 def findMinRoute(tsp):
     sum = 0
     counter = 0

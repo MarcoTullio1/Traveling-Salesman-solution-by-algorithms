@@ -1,67 +1,61 @@
+import decimal
+import math
+import pandas as pd
 import numpy as np
 from BF  import travellingSalesmanProblem
 from greedy import  findMinRoute
 import time
-class Teste:
+class Test:
 
-    def graph_generator(self):
+    def question_a(self):
+        ''' function responsible for calculate the number of maximum vertex that
+        can be executed in 4 minutes related to brute-force algorithm'''
+        data = {
+            'vertice': [],
+            'average_time_execution': []
+        }
+        df = pd.DataFrame(data)
 
-        for i in range (5,50):
-            n = np.random.randint(i, i + 1)
-            graph = np.random.randint(0, 10, (n, n))
-            #print(graph)
-            #self.test_greedy(graph)
-            self.test_bf(graph,n)
+        time_execution = 0
+        vertex_inicialization = 5
+        start_time = time.time()
+        while time_execution < 240: # 4 minutoes = 240 seconds
+                ''' n is the number of vertices in the graph. 
+                graph is a adjacency matrix on n vertices'''
+                n = np.random.randint(vertex_inicialization, vertex_inicialization + 1)
+                graph = np.random.randint(0, 10, (n, n))
+                avarage_time_execution = self.test_bf(graph,n) #return the avarege time execution of a vertice
+                df = df.append({'vertice': n, 'average_time_execution': avarage_time_execution},
+                               ignore_index=True)
+                end_time = time.time()
+                time_execution = end_time - start_time # calculate the time of execution
+                time_execution = math.floor(time_execution)
+                vertex_inicialization = vertex_inicialization + 1 # increments the number of vertices setting
+        df.to_csv("./brute_force_execution.csv")
 
-    def test_bf(self,graph,n):
-        size = n
+
+
+    def test_bf(self,graph,n): # function responsible for call the execution of the  brute-force algorithm
         total_time_execution_size = 0
-        number_solutions = 0
-
         for repetition in range(1, 71):
                 s = 0
-                start_time = time.time()  # em segundos
-                print(travellingSalesmanProblem(graph, s))
-                number_solutions= number_solutions +1
+                start_time = time.time()  # in seconds
+                result = travellingSalesmanProblem(graph, s)
                 end_time = time.time()  # em segundos
                 final_time = end_time-start_time
-                total_time_execution_size = total_time_execution_size + final_time # tempo de solução
-                # tempo médio de solução soma todos os total time execution e divide pelo número de vezes que a solução foi encontrada
-                #total_time_execution_size
-                #media_time = total_time_execution_size
-        print("number_solutions",number_solutions)
-        print(total_time_execution_size)
-        avarage_time_execution = float(total_time_execution_size)/float(70)
-        print(float(avarage_time_execution))
+                total_time_execution_size = total_time_execution_size + final_time # time of solution
+
+        avarage_time_execution = decimal.Decimal(total_time_execution_size/70) # average solution time sum all running time and divide by the number of times the solution was found
+
+        return avarage_time_execution
 
 
-
-
-
-    def test_greedy(self,graph):
-        #size = n
-        tempo_inicial = time.time() # em segundos
+    def test_greedy(self,graph): # function responsible for call the execution of the algorithm greedy
         findMinRoute(graph)
-        tempo_final = time.time() # em segundos
-        print(tempo_final-tempo_inicial)
+
 
 
 
 
 if __name__ == "__main__":
-    my = Teste().graph_generator()
-
-    #print(travellingSalesmanProblem(my,s))
-    #findMinRoute(my)
-
-
-
-'''The question is a little open-ended, so please clarify if this isn't what you want.
-
-import numpy as np 
-#n is the number of vertices in the graph.  
-adjacency = np.random.randint(0,2,(n,n)) 
-That's it. You now have the adjacency matrix of a random graph on n vertices. That means adjacency[i,j]=1 if there is an edge between vertices i and j and is 0 otherwise. You can choose n randomly too if you want.
-
-n=np.random.randint(1,N+1) 
-where N is the largest number of vertices allowed'''
+    quation_a = Test().question_a()
