@@ -42,7 +42,7 @@ class Test:
         greedy_solutions = []
         matched_solutions = []
 
-        for _ in range(10):
+        for _ in range(1000):
             n = vertex_inicialization - 1
             graph = self.generate_random_graph(n)
             brute_force_solution, brute_force_time = self.test_bf(graph)
