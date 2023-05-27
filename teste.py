@@ -12,27 +12,33 @@ class Test:
 
     def question_a(self):
         data = {
-            'vertice': [],
+            'graph_number': [],
+            'vertices': [],
+            'solution': [],
             'average_time_execution': []
         }
         df = pd.DataFrame(data)
 
         vertex_inicialization = 5
+        graph_number = 1
 
-        #for _ in range(1000):
-        for _ in range(100):
+        for _ in range(1000):
             n = vertex_inicialization - 1
-            average_time_execution = self.test_bf(n)
-            df = pd.concat([df, pd.DataFrame({'vertice': [n], 'average_time_execution': [average_time_execution]})])
+            graph = self.generate_random_graph(n)
+            average_time_execution, solution = self.test_bf(graph)
+            df = pd.concat([df, pd.DataFrame({'graph_number': [graph_number],
+                                              'vertices': [n],
+                                              'solution': [solution],
+                                              'average_time_execution': [average_time_execution]})])
             vertex_inicialization += 1
+            graph_number += 1
 
-        df.to_csv("./brute_force_execution.csv")
+        df.to_csv("./brute_force_execution.csv", index=False)
 
-    def test_bf(self, n):
+    def test_bf(self, graph):
         total_time_execution_size = 0
 
         for _ in range(70):
-            graph = self.generate_random_graph(n)
             s = 0
             start_time = time.time()
             result = travellingSalesmanProblem(graph, s)
@@ -41,7 +47,7 @@ class Test:
             total_time_execution_size += final_time
 
         average_time_execution = decimal.Decimal(total_time_execution_size / 70)
-        return average_time_execution
+        return average_time_execution, result
 
 if __name__ == "__main__":
     Test().question_a()
