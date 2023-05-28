@@ -1,13 +1,18 @@
 import decimal
-import math
 import pandas as pd
 import numpy as np
-from BF import travellingSalesmanProblem
-from greedy import findMinRoute
-import time
+from BF import brute_force
+from greedy import greedy
+import threading
+
+global greedy_solution
+global greedy_execution_time 
+global bf_solution
+global bf_execution_time
 
 
 class Test:
+
     def generate_random_graph(self, n):
         graph = np.random.randint(0, 10, (n, n))
         return graph
@@ -34,71 +39,71 @@ class Test:
         }
         df_greedy = pd.DataFrame(data_greedy)
 
-        time_execution = 0
         vertex_inicialization = 5
-        start_time = time.time()
 
-        while time_execution < 240:  # 4 minutos = 240 segundos
-            n = vertex_inicialization - 1
-            average_time_execution_bf = self.test_bf(n)
-            average_time_execution_greedy, greedy_solution, accuracy = self.test_greedy(n)
+        for i in range(4): 
+            n = vertex_inicialization
+            t1 = threading.Thread(target=self.test_bf(n))
+            t2 = threading.Thread(target=self.test_greedy(n))
+
+            t1.start()
+            t2.start()
+
+            t2.join()
+            t1.join()
 
             df_results = pd.concat([df_results, pd.DataFrame({'vertice': [n],
-                                                               'average_time_execution_bf': [average_time_execution_bf],
-                                                               'average_time_execution_greedy': [average_time_execution_greedy],
-                                                               'greedy_solution': [greedy_solution]})])
+                                                               'average_time_execution_bf': [bf_execution_time],
+                                                               'average_time_execution_greedy': [greedy_execution_time],
+                                                               'greedy_solution': [greedy_solution],
+                                                               'brute_force_solution': [bf_solution],
+                                                               'same_solution': [bf_solution == greedy_solution]
+            })])
 
-            df_bf = pd.concat([df_bf, pd.DataFrame({'vertice': [n],
-                                                     'average_time_execution': [average_time_execution_bf]})])
-
-            df_greedy = pd.concat([df_greedy, pd.DataFrame({'vertice': [n],
-                                                             'average_time_execution': [average_time_execution_greedy],
-                                                             'accuracy': [accuracy]})])
-
-            end_time = time.time()
-            time_execution = end_time - start_time
-            time_execution = math.floor(time_execution)
+            if bf_solution == 0:  
+                df_results.to_csv("./results.csv", index=False)
+                break
+            
             vertex_inicialization += 1
 
         df_results.to_csv("./results.csv", index=False)
-        df_bf.to_csv("./brute_force_execution.csv", index=False)
-        df_greedy.to_csv("./greedy_execution.csv", index=False)
 
     def test_bf(self, n):
-        total_time_execution_size = 0
+        global bf_solution
+        global bf_execution_time
+        total_time = 0
 
-        for repetition in range(1, 71):
+        for i in range(70):
             graph = self.generate_random_graph(n)
-            s = 0
-            start_time = time.time()
-            result = travellingSalesmanProblem(graph, s)
-            end_time = time.time()
-            final_time = end_time - start_time
-            total_time_execution_size += final_time
+            route, solution, execution_time = brute_force(graph)
+            total_time += execution_time
 
-        average_time_execution = decimal.Decimal(total_time_execution_size / 70)
-        return average_time_execution
+        #verifica se o tempo de execucao foi maior do que 4 minutos
+        if total_time > 240000:
+            bf_solution = 0
+            bf_execution_time = decimal.Decimal(total_time / 70)
+
+        bf_solution =  solution
+        bf_execution_time = decimal.Decimal(total_time / 70)
 
     def test_greedy(self, n):
-        total_time_execution_size = 0
-        total_correct_solutions = 0
+        total_time = 0
+        global greedy_solution
+        global greedy_execution_time
+        global greedy_solution
 
-        for repetition in range(1, 71):
+        for i in range(70):
             graph = self.generate_random_graph(n)
-            start_time = time.time()
-            greedy_solution = findMinRoute(graph)
-            end_time = time.time()
-            final_time = end_time - start_time
-            total_time_execution_size += final_time
+            route, solution, execution_time = greedy(graph)
+            total_time += execution_time
 
-            # Verificar se a solução do algoritmo guloso é a mesma da força bruta
-            bf_solution = travellingSalesmanProblem(graph, 0)
-            if greedy_solution == bf_solution:
-                total_correct_solutions += 1
+        #verifica se o tempo de execucao foi maior do que 4 minutos
+        if total_time > 240000:
+            greedy_solution = 0
+            greedy_execution_time = decimal.Decimal(total_time / 70)
 
-        average_time_execution = decimal.Decimal(total_time_execution_size / 70)
-        accuracy = total_correct_solutions / 70
-        return average_time_execution, greedy_solution, accuracy
+        greedy_solution =  solution
+        greedy_execution_time = decimal.Decimal(total_time / 70)
 
 
 if __name__ == "__main__":
