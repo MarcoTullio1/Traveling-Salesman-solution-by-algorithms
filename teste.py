@@ -5,10 +5,9 @@ from BF import brute_force
 from greedy import greedy
 import threading
 
-global greedy_solution
 global greedy_execution_time 
-global bf_solution
 global bf_execution_time
+global same_solution_count
 
 
 class Test:
@@ -22,89 +21,70 @@ class Test:
             'vertice': [],
             'average_time_execution_bf': [],
             'average_time_execution_greedy': [],
-            'greedy_solution': []
+            'same_solution_count': []
         }
         df_results = pd.DataFrame(data_results)
 
         data_bf = {
             'vertice': [],
-            'average_time_execution': []
+            'execution_time': [],
+            'solution': [],
+            'route': []
         }
         df_bf = pd.DataFrame(data_bf)
 
         data_greedy = {
             'vertice': [],
-            'average_time_execution': [],
-            'accuracy': []
+            'execution_time': [],
+            'solution': [],
+            'route': []
         }
         df_greedy = pd.DataFrame(data_greedy)
 
         vertex_inicialization = 5
 
-        for i in range(4): 
-            n = vertex_inicialization
-            t1 = threading.Thread(target=self.test_bf(n))
-            t2 = threading.Thread(target=self.test_greedy(n))
+        for i in range(9):
 
-            t1.start()
-            t2.start()
+            same_solution_count  = 0
+            total_time_bf = 0
+            total_time_g = 0
+        
+            for i in range(1000):
+                graph = self.generate_random_graph(vertex_inicialization)
 
-            t2.join()
-            t1.join()
+                route_bf, solution_bf, execution_time_bf = brute_force(graph)
+                route_g, solution_g, execution_time_g = greedy(graph)
 
-            df_results = pd.concat([df_results, pd.DataFrame({'vertice': [n],
-                                                               'average_time_execution_bf': [bf_execution_time],
-                                                               'average_time_execution_greedy': [greedy_execution_time],
-                                                               'greedy_solution': [greedy_solution],
-                                                               'brute_force_solution': [bf_solution],
-                                                               'same_solution': [bf_solution == greedy_solution]
-            })])
+                total_time_bf += execution_time_bf
+                total_time_g += execution_time_g
+                
+                if(solution_bf == solution_g):
+                    same_solution_count+=1
 
-            if bf_solution == 0:  
-                df_results.to_csv("./results.csv", index=False)
-                break
-            
+                df_bf = pd.concat([df_bf, pd.DataFrame({'vertice': [vertex_inicialization],
+                                                        'execution_time': [execution_time_bf],
+                                                        'solution': [solution_bf],
+                                                        'route': [route_bf]
+                })])
+
+                df_greedy = pd.concat([df_greedy, pd.DataFrame({'vertice': [vertex_inicialization],
+                                                        'execution_time': [execution_time_g],
+                                                        'solution': [solution_g],
+                                                        'route': [route_g]
+                })])
+
+                df_greedy.to_csv("./greedy.csv", index=False)
+                df_bf.to_csv("./brute_force.csv", index=False)
+
+            df_results = pd.concat([df_results, pd.DataFrame({'vertice': [vertex_inicialization],
+                                                               'average_time_execution_bf': [total_time_bf / 1000],
+                                                               'average_time_execution_greedy': [total_time_g / 1000],
+                                                               'same_solution_count': [same_solution_count]})])
+
+            print("Grafo de tamanho " + str(vertex_inicialization) + " processado.")
+            df_results.to_csv("./results.csv", index=False)
             vertex_inicialization += 1
-
-        df_results.to_csv("./results.csv", index=False)
-
-    def test_bf(self, n):
-        global bf_solution
-        global bf_execution_time
-        total_time = 0
-
-        for i in range(70):
-            graph = self.generate_random_graph(n)
-            route, solution, execution_time = brute_force(graph)
-            total_time += execution_time
-
-        #verifica se o tempo de execucao foi maior do que 4 minutos
-        if total_time > 240000:
-            bf_solution = 0
-            bf_execution_time = decimal.Decimal(total_time / 70)
-
-        bf_solution =  solution
-        bf_execution_time = decimal.Decimal(total_time / 70)
-
-    def test_greedy(self, n):
-        total_time = 0
-        global greedy_solution
-        global greedy_execution_time
-        global greedy_solution
-
-        for i in range(70):
-            graph = self.generate_random_graph(n)
-            route, solution, execution_time = greedy(graph)
-            total_time += execution_time
-
-        #verifica se o tempo de execucao foi maior do que 4 minutos
-        if total_time > 240000:
-            greedy_solution = 0
-            greedy_execution_time = decimal.Decimal(total_time / 70)
-
-        greedy_solution =  solution
-        greedy_execution_time = decimal.Decimal(total_time / 70)
-
+        
 
 if __name__ == "__main__":
     Test().question_a()
