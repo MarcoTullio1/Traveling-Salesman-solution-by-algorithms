@@ -1,61 +1,112 @@
 import decimal
-import math
 import pandas as pd
 import numpy as np
-from BF  import travellingSalesmanProblem
-from greedy import  findMinRoute
-import time
+from BF import brute_force
+from greedy import greedy
+import threading
+
+global greedy_execution_time
+global bf_execution_time
+global same_solution_count
+
+
 class Test:
 
+    def generate_random_graph(self, n):
+        graph = np.random.randint(0, 10, (n, n))
+        return graph
+
     def question_a(self):
-        ''' function responsible for calculate the number of maximum vertex that
-        can be executed in 4 minutes related to brute-force algorithm'''
-        data = {
+        vertex_count = 5
+        total_time_bf = 0
+        total_time_g = 0
+        for i in range(1000):
+            for i in range(70):
+                graph = self.generate_random_graph(vertex_count)
+                route_bf, solution_bf, execution_time_bf = brute_force(graph)
+                route_g, solution_g, execution_time_g = greedy(graph)
+
+                total_time_bf += execution_time_bf
+                total_time_g += execution_time_g
+
+            # Verifica se o tempo de execução foi maior do 4 minutos
+            if (total_time_bf > 240000 or total_time_g > 240000):
+                print("Tamanho maximo de grafo encontrado! N = " + str(vertex_count - 1))
+                break
+            
+            print("Grafo de tamanho " + str(vertex_count) + " processado!")
+            vertex_count+=1
+
+    def question_b(self):
+        data_results = {
             'vertice': [],
-            'average_time_execution': []
+            'average_time_execution_bf': [],
+            'average_time_execution_greedy': [],
+            'same_solution_count': []
         }
-        df = pd.DataFrame(data)
+        df_results = pd.DataFrame(data_results)
 
-        time_execution = 0
+        data_bf = {
+            'vertice': [],
+            'execution_time': [],
+            'solution': [],
+            'route': []
+        }
+        df_bf = pd.DataFrame(data_bf)
+
+        data_greedy = {
+            'vertice': [],
+            'execution_time': [],
+            'solution': [],
+            'route': []
+        }
+        df_greedy = pd.DataFrame(data_greedy)
+
         vertex_inicialization = 5
-        start_time = time.time()
-        while time_execution < 240: # 4 minutoes = 240 seconds
-                ''' n is the number of vertices in the graph. 
-                graph is a adjacency matrix on n vertices'''
-                n = np.random.randint(vertex_inicialization, vertex_inicialization + 1)
-                graph = np.random.randint(0, 10, (n, n))
-                avarage_time_execution = self.test_bf(graph,n) #return the avarege time execution of a vertice
-                df = df.append({'vertice': n, 'average_time_execution': avarage_time_execution},
-                               ignore_index=True)
-                end_time = time.time()
-                time_execution = end_time - start_time # calculate the time of execution
-                time_execution = math.floor(time_execution)
-                vertex_inicialization = vertex_inicialization + 1 # increments the number of vertices setting
-        df.to_csv("./brute_force_execution.csv")
 
+        for i in range(5):
 
+            same_solution_count = 0
+            total_time_bf = 0
+            total_time_g = 0
 
-    def test_bf(self,graph,n): # function responsible for call the execution of the  brute-force algorithm
-        total_time_execution_size = 0
-        for repetition in range(1, 71):
-                s = 0
-                start_time = time.time()  # in seconds
-                result = travellingSalesmanProblem(graph, s)
-                end_time = time.time()  # em segundos
-                final_time = end_time-start_time
-                total_time_execution_size = total_time_execution_size + final_time # time of solution
+            for i in range(1000):
+                graph = self.generate_random_graph(vertex_inicialization)
 
-        avarage_time_execution = decimal.Decimal(total_time_execution_size/70) # average solution time sum all running time and divide by the number of times the solution was found
+                route_bf, solution_bf, execution_time_bf = brute_force(graph)
+                route_g, solution_g, execution_time_g = greedy(graph)
 
-        return avarage_time_execution
+                total_time_bf += execution_time_bf
+                total_time_g += execution_time_g
 
+                if (solution_bf == solution_g):
+                    same_solution_count += 1
 
-    def test_greedy(self,graph): # function responsible for call the execution of the algorithm greedy
-        findMinRoute(graph)
+                df_bf = pd.concat([df_bf, pd.DataFrame({'vertice': [vertex_inicialization],
+                                                        'execution_time': [execution_time_bf],
+                                                        'solution': [solution_bf],
+                                                        'route': [route_bf]
+                                                        })])
 
+                df_greedy = pd.concat([df_greedy, pd.DataFrame({'vertice': [vertex_inicialization],
+                                                                'execution_time': [execution_time_g],
+                                                                'solution': [solution_g],
+                                                                'route': [route_g]
+                                                                })])
 
+                df_greedy.to_csv("./greedy.csv", index=False)
+                df_bf.to_csv("./brute_force.csv", index=False)
 
+            df_results = pd.concat([df_results, pd.DataFrame({'vertice': [vertex_inicialization],
+                                                              'average_time_execution_bf': [total_time_bf / 1000],
+                                                              'average_time_execution_greedy': [total_time_g / 1000],
+                                                              'same_solution_count': [same_solution_count]})])
+
+            print("Grafo de tamanho " +
+                  str(vertex_inicialization) + " processado.")
+            df_results.to_csv("./results.csv", index=False)
+            vertex_inicialization += 1
 
 
 if __name__ == "__main__":
-    quation_a = Test().question_a()
+    Test().question_b()
