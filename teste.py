@@ -43,7 +43,7 @@ class Test:
 
         vertex_inicialization = 5
 
-        for i in range(9):
+        for i in range(5):
 
             same_solution_count  = 0
             total_time_bf = 0
