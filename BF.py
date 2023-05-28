@@ -1,9 +1,5 @@
-import numpy as np
 import itertools
 import time
-from sys import maxsize
-from itertools import permutations
-V = 4
 
 
 def brute_force(matriz):
@@ -47,28 +43,3 @@ def brute_force(matriz):
 
     # Retorna a melhor rota, a distância mínima encontrada e o tempo de execução
     return melhor_rota, distancia_minima, tempo_execucao
-
-
-def brute_force2(graph, s):
-	# Inicializa o tempo de execução
-    tempo_inicial = time.time()
-    vertex = []
-    for i in range(V):
-        if i != s:
-            vertex.append(i)
-
-    min_path = maxsize
-    next_permutation = permutations(vertex)
-    for i in next_permutation:
-        current_pathweight = 0
-        k = s
-        for j in i:
-            current_pathweight += graph[k][j]
-            k = j
-        current_pathweight += graph[k][s]
-        min_path = min(min_path, current_pathweight)
-        
-	# Calcula o tempo de execução
-    tempo_execucao = (time.time() - tempo_inicial) * 1000
-
-    return 0, min_path, tempo_execucao

@@ -5,7 +5,7 @@ from BF import brute_force
 from greedy import greedy
 import threading
 
-global greedy_execution_time 
+global greedy_execution_time
 global bf_execution_time
 global same_solution_count
 
@@ -17,6 +17,27 @@ class Test:
         return graph
 
     def question_a(self):
+        vertex_count = 5
+        total_time_bf = 0
+        total_time_g = 0
+        for i in range(1000):
+            for i in range(70):
+                graph = self.generate_random_graph(vertex_count)
+                route_bf, solution_bf, execution_time_bf = brute_force(graph)
+                route_g, solution_g, execution_time_g = greedy(graph)
+
+                total_time_bf += execution_time_bf
+                total_time_g += execution_time_g
+
+            # Verifica se o tempo de execução foi maior do 4 minutos
+            if (total_time_bf > 240000 or total_time_g > 240000):
+                print("Tamanho maximo de grafo encontrado! N = " + str(vertex_count - 1))
+                break
+            
+            print("Grafo de tamanho " + str(vertex_count) + " processado!")
+            vertex_count+=1
+
+    def question_b(self):
         data_results = {
             'vertice': [],
             'average_time_execution_bf': [],
@@ -45,10 +66,10 @@ class Test:
 
         for i in range(5):
 
-            same_solution_count  = 0
+            same_solution_count = 0
             total_time_bf = 0
             total_time_g = 0
-        
+
             for i in range(1000):
                 graph = self.generate_random_graph(vertex_inicialization)
 
@@ -57,34 +78,35 @@ class Test:
 
                 total_time_bf += execution_time_bf
                 total_time_g += execution_time_g
-                
-                if(solution_bf == solution_g):
-                    same_solution_count+=1
+
+                if (solution_bf == solution_g):
+                    same_solution_count += 1
 
                 df_bf = pd.concat([df_bf, pd.DataFrame({'vertice': [vertex_inicialization],
                                                         'execution_time': [execution_time_bf],
                                                         'solution': [solution_bf],
                                                         'route': [route_bf]
-                })])
+                                                        })])
 
                 df_greedy = pd.concat([df_greedy, pd.DataFrame({'vertice': [vertex_inicialization],
-                                                        'execution_time': [execution_time_g],
-                                                        'solution': [solution_g],
-                                                        'route': [route_g]
-                })])
+                                                                'execution_time': [execution_time_g],
+                                                                'solution': [solution_g],
+                                                                'route': [route_g]
+                                                                })])
 
                 df_greedy.to_csv("./greedy.csv", index=False)
                 df_bf.to_csv("./brute_force.csv", index=False)
 
             df_results = pd.concat([df_results, pd.DataFrame({'vertice': [vertex_inicialization],
-                                                               'average_time_execution_bf': [total_time_bf / 1000],
-                                                               'average_time_execution_greedy': [total_time_g / 1000],
-                                                               'same_solution_count': [same_solution_count]})])
+                                                              'average_time_execution_bf': [total_time_bf / 1000],
+                                                              'average_time_execution_greedy': [total_time_g / 1000],
+                                                              'same_solution_count': [same_solution_count]})])
 
-            print("Grafo de tamanho " + str(vertex_inicialization) + " processado.")
+            print("Grafo de tamanho " +
+                  str(vertex_inicialization) + " processado.")
             df_results.to_csv("./results.csv", index=False)
             vertex_inicialization += 1
-        
+
 
 if __name__ == "__main__":
-    Test().question_a()
+    Test().question_b()
