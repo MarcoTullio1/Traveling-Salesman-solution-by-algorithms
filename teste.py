@@ -23,7 +23,7 @@ class Test:
         total_time_bf = 0
         total_time_g = 0
         total_time_bt = 0
-        
+
         for i in range(1000):
             for i in range(70):
                 graph = self.generate_random_graph(vertex_count)
@@ -84,6 +84,7 @@ class Test:
             same_solution_count = 0
             total_time_bf = 0
             total_time_g = 0
+            total_time_bt = 0
 
             for i in range(1000):
                 graph = self.generate_random_graph(vertex_inicialization)
@@ -94,6 +95,7 @@ class Test:
 
                 total_time_bf += execution_time_bf
                 total_time_g += execution_time_g
+                total_time_bt += execution_time_bt
 
                 if (solution_bf == solution_g):
                     same_solution_count += 1
@@ -134,6 +136,6 @@ class Test:
 
 if __name__ == "__main__":
     Test().question_a()
-    time.Sleep(1000)
+    time.sleep(5)
     Test().question_b()
 
