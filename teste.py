@@ -48,6 +48,7 @@ class Test:
         inicialização_vértices = 5
 
         for i in range(5):
+            print(f"Executando iteração {i+1}...")
             contador_acertos_bt = 0
             contador_acertos_dp = 0
             tempo_total_bt = 0
