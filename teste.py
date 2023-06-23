@@ -1,3 +1,4 @@
+
 import decimal
 import time
 import pandas as pd
@@ -28,14 +29,12 @@ class Test:
             'solução': [],
             'rota': []
         }
-        df_backtracking = pd.DataFrame(data_backtracking)
 
         data_dynamic_programming = {
             'vértice': [],
             'tempo_execução': [],
             'solução': []
         }
-        df_dynamic_programming = pd.DataFrame(data_dynamic_programming)
 
         data_brute_force = {
             'vértice': [],
@@ -43,7 +42,6 @@ class Test:
             'solução': [],
             'rota': []
         }
-        df_brute_force = pd.DataFrame(data_brute_force)
 
         inicialização_vértices = 5
 
@@ -56,6 +54,7 @@ class Test:
             tempo_total_bf = 0
 
             for j in range(1000):
+                print(f"     Executando iteração {j+1}...")
                 grafo = self.generate_random_graph(inicialização_vértices)
 
                 # Algoritmo de backtracking
@@ -78,17 +77,19 @@ class Test:
                     contador_acertos_dp += 1
 
                 # Armazenar resultados
-                df_backtracking = pd.concat([df_backtracking, pd.DataFrame({'vértice': [inicialização_vértices],
-                                                                            'tempo_execução': [tempo_execução_bt],
-                                                                            'solução': [solução_bt],
-                                                                            'rota': [rota_bt]})])
-                df_dynamic_programming = pd.concat([df_dynamic_programming, pd.DataFrame({'vértice': [inicialização_vértices],
-                                                                                            'tempo_execução': [tempo_execução_dp],
-                                                                                            'solução': [solução_dp]})])
-                df_brute_force = pd.concat([df_brute_force, pd.DataFrame({'vértice': [inicialização_vértices],
-                                                                          'tempo_execução': [tempo_execução_bf],
-                                                                          'solução': [solução_bf],
-                                                                          'rota': [rota_bf]})])
+                data_backtracking['vértice'].append(inicialização_vértices)
+                data_backtracking['tempo_execução'].append(tempo_execução_bt)
+                data_backtracking['solução'].append(solução_bt)
+                data_backtracking['rota'].append(rota_bt)
+
+                data_dynamic_programming['vértice'].append(inicialização_vértices)
+                data_dynamic_programming['tempo_execução'].append(tempo_execução_dp)
+                data_dynamic_programming['solução'].append(solução_dp)
+
+                data_brute_force['vértice'].append(inicialização_vértices)
+                data_brute_force['tempo_execução'].append(tempo_execução_bf)
+                data_brute_force['solução'].append(solução_bf)
+                data_brute_force['rota'].append(rota_bf)
 
             # Calcular tempo médio
             tempo_médio_bt = tempo_total_bt / 1000
@@ -96,8 +97,8 @@ class Test:
             tempo_médio_bf = tempo_total_bf / 1000
 
             # Calcular acurácia em porcentagem
-            acurácia_bt = contador_acertos_bt / 10
-            acurácia_dp = contador_acertos_dp / 10
+            acurácia_bt = (contador_acertos_bt / 1000) * 100
+            acurácia_dp = (contador_acertos_dp / 1000) * 100
 
             # Armazenar resultados médios
             df_results = pd.concat([df_results, pd.DataFrame({'vértice': [inicialização_vértices],
@@ -110,10 +111,37 @@ class Test:
             # Incrementar o número de vértices para a próxima iteração
             inicialização_vértices += 5
 
-        # Salvar resultados em arquivos CSV
-        df_backtracking.to_csv('resultados_backtracking.csv', index=False)
-        df_dynamic_programming.to_csv('resultados_programação_dinâmica.csv', index=False)
-        df_brute_force.to_csv('resultados_força_bruta.csv', index=False)
+            # Salvar resultados em arquivos CSV
+            df_backtracking = pd.DataFrame(data_backtracking)
+            df_backtracking.to_csv(f'resultados_backtracking_{i+1}.csv', index=False)
+
+            df_dynamic_programming = pd.DataFrame(data_dynamic_programming)
+            df_dynamic_programming.to_csv(f'resultados_programação_dinâmica_{i+1}.csv', index=False)
+
+            df_brute_force = pd.DataFrame(data_brute_force)
+            df_brute_force.to_csv(f'resultados_força_bruta_{i+1}.csv', index=False)
+
+            data_backtracking = {
+                'vértice': [],
+                'tempo_execução': [],
+                'solução': [],
+                'rota': []
+            }
+
+            data_dynamic_programming = {
+                'vértice': [],
+                'tempo_execução': [],
+                'solução': []
+            }
+
+            data_brute_force = {
+                'vértice': [],
+                'tempo_execução': [],
+                'solução': [],
+                'rota': []
+            }
+
+        # Salvar resultados comparativos em arquivo CSV
         df_results.to_csv('resultados_comparativos.csv', index=False)
 
         # Exibir resultados
